@@ -21,24 +21,11 @@ export default function Root() {
 }
 
 function RootNavigator() {
-  const { session, isOnboarded, isOnboardingLoading } = useSession();
-
-  if (isOnboardingLoading) {
-    return null; 
-  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
-        <Stack.Screen name="(core)" />
-      </Stack.Protected>
-
-      <Stack.Protected guard={!session}>
-        <Stack.Protected guard={!isOnboarded}>
-          <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack.Protected>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
     </Stack>
   );
 }
