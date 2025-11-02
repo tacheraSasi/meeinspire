@@ -149,13 +149,6 @@ interface AudioReel {
   type: string;
 }
 
-interface Comment {
-  id: string;
-  user: string;
-  text: string;
-  time: string;
-  likes: number;
-}
 
 interface WaveformProps {
   data: number[];
@@ -164,61 +157,6 @@ interface WaveformProps {
   progress: number;
 }
 
-const Waveform: React.FC<WaveformProps> = ({
-  data,
-  color,
-  isPlaying,
-  progress,
-}) => {
-  const animation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (isPlaying) {
-      Animated.loop(
-        Animated.timing(animation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        })
-      ).start();
-    } else {
-      animation.setValue(0);
-    }
-  }, [isPlaying]);
-
-  const interpolatedAnimation = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.3],
-  });
-
-  return (
-    <View style={styles.waveformContainer}>
-      {data.map((amplitude, index) => {
-        const isActive = index / data.length < progress;
-        const scale = isActive ? interpolatedAnimation : 1;
-
-        return (
-          <Animated.View
-            key={index}
-            style={[
-              styles.waveBar,
-              {
-                height: amplitude,
-                backgroundColor: isActive ? color : `${color}40`,
-                transform: [{ scaleY: isPlaying ? scale : 1 }],
-                shadowColor: isActive ? color : "transparent",
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: isActive ? 0.8 : 0,
-                shadowRadius: 4,
-                elevation: isActive ? 4 : 0,
-              },
-            ]}
-          />
-        );
-      })}
-    </View>
-  );
-};
 
 interface AudioReelProps {
   reel: AudioReel;
@@ -231,13 +169,10 @@ interface AudioReelProps {
 
 const AudioReelComponent: React.FC<AudioReelProps> = ({
   reel,
-  isActive,
   onLike,
-  onComment,
   onShare,
   onMore,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -264,30 +199,6 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
     };
   }, []);
 
-  const handlePlayPause = async () => {
-    if (!sound) return;
-
-    if (isPlaying) {
-      await sound.pauseAsync();
-      setIsPlaying(false);
-    } else {
-      await sound.playAsync();
-      setIsPlaying(true);
-
-      // Simulate progress for demo
-      Animated.timing(progressAnim, {
-        toValue: 1,
-        duration: 30000,
-        useNativeDriver: false,
-      }).start(({ finished }) => {
-        if (finished) {
-          setIsPlaying(false);
-          setProgress(0);
-          progressAnim.setValue(0);
-        }
-      });
-    }
-  };
 
   progressAnim.addListener(({ value }) => {
     setProgress(value);
@@ -298,35 +209,7 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
     onLike(reel.id);
   };
 
-  const getTypeIcon = () => {
-    switch (reel.type) {
-      case "music":
-        return "musical-notes";
-      case "podcast":
-        return "mic";
-      case "audiobook":
-        return "book";
-      case "voicenote":
-        return "chatbubble";
-      default:
-        return "musical-notes";
-    }
-  };
 
-  const getTypeColor = () => {
-    switch (reel.type) {
-      case "music":
-        return "#FF6B6B";
-      case "podcast":
-        return "#4ECDC4";
-      case "audiobook":
-        return "#6C5CE7";
-      case "voicenote":
-        return "#FFA726";
-      default:
-        return reel.color;
-    }
-  };
 
   return (
     <View style={styles.reelContainer}>
@@ -339,35 +222,15 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
         {/* Main Content */}
         <View style={styles.content}>
           {/* Top Info Bar */}
-          <View style={styles.topBar}>
-            <View style={styles.artistInfo}>
-              <View style={styles.avatarContainer}>
-                <Image
-                  source={{ uri: reel.artistAvatar }}
-                  style={styles.avatar}
-                />
-                <View
-                  style={[
-                    styles.typeBadge,
-                    { backgroundColor: getTypeColor() },
-                  ]}
-                >
-                  <Ionicons
-                    name={getTypeIcon() as any}
-                    size={12}
-                    color="white"
-                  />
-                </View>
-              </View>
-              <View>
-                <Text style={styles.artistName}>{reel.artist}</Text>
-                <Text style={styles.songTitle}>{reel.title}</Text>
-              </View>
-            </View>
-            <View style={styles.stats}>
-              <Ionicons name="play" size={14} color="white" />
-              <Text style={styles.statText}>{reel.plays}</Text>
-            </View>
+          <View style={styles.topBar}></View>
+
+          <View>
+            <Text>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
+              voluptas fuga at aut tempore fugiat. Odio at adipisci saepe
+              distinctio libero pariatur sit? Suscipit a, odio consectetur rerum
+              soluta impedit.
+            </Text>
           </View>
 
           {/* Bottom Controls */}
@@ -375,8 +238,8 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
             <Pressable style={styles.actionButton} onPress={handleLike}>
               <Ionicons
                 name={isLiked ? "heart" : "heart-outline"}
-                size={28}
-                color={isLiked ? "#FF4757" : "white"}
+                size={30}
+                color={isLiked ? "#FF4757" : "#433a3aff"}
               />
             </Pressable>
 
@@ -384,16 +247,13 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
             <View style={styles.actionButtons}>
               <Pressable
                 style={styles.actionButton}
-                onPress={() => onShare(reel.id)}
-              >
-                <Ionicons name="paper-plane-outline" size={26} color="white" />
-              </Pressable>
-
-              <Pressable
-                style={styles.actionButton}
                 onPress={() => onMore(reel)}
               >
-                <Ionicons name="ellipsis-horizontal" size={26} color="white" />
+                <Ionicons
+                  name="paper-plane-outline"
+                  size={30}
+                  color="#433a3aff"
+                />
               </Pressable>
             </View>
           </View>
@@ -483,7 +343,7 @@ export default function IndexScreen() {
               router.push("/settings");
             }}
           >
-            <Ionicons name="add-circle" size={24} color="white" />
+            <Ionicons name="flower" size={30} color="#433a3aff" />
           </Pressable>
         </View>
       </View>
@@ -502,7 +362,6 @@ export default function IndexScreen() {
         decelerationRate="fast"
         bounces={false}
       />
-
 
       {/* More Options Bottom Sheet */}
       <BottomSheet
@@ -574,6 +433,15 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   headerButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 10,
+      height: 10,
+    },
+    shadowOpacity: 100,
     padding: 4,
   },
   reelContainer: {
@@ -697,7 +565,17 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   actionButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 10,
+      height: 10,
+    },
+    shadowOpacity: 100,
     alignItems: "center",
+    padding:4,
     gap: 6,
   },
   actionCount: {
