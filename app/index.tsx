@@ -167,7 +167,7 @@ interface AudioReelProps {
   onMore: (reel: AudioReel) => void;
 }
 
-const AudioReelComponent: React.FC<AudioReelProps> = ({
+const QuoteReelComponent: React.FC<AudioReelProps> = ({
   reel,
   onLike,
   onShare,
@@ -239,7 +239,7 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
               <Ionicons
                 name={isLiked ? "heart" : "heart-outline"}
                 size={30}
-                color={isLiked ? "#FF4757" : "#433a3aff"}
+                color={"#433a3aff"}
               />
             </Pressable>
 
@@ -313,7 +313,7 @@ export default function IndexScreen() {
   };
 
   const renderReel = ({ item, index }: { item: AudioReel; index: number }) => (
-    <AudioReelComponent
+    <QuoteReelComponent
       reel={item}
       isActive={index === currentIndex}
       onLike={handleLike}
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     paddingTop: 100,
-    paddingBottom: 100,
+    paddingBottom: 30,
   },
   content: {
     flex: 1,

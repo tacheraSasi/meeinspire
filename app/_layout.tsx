@@ -25,7 +25,7 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="settings" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false, presentation:"formSheet" }} />
     </Stack>
   );
 }

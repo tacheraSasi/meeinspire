@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "listen",
-    "slug": "listen",
+    "name": "meeinspire",
+    "slug": "meeinspire",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "listen",
+    "scheme": "meeinspire",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
