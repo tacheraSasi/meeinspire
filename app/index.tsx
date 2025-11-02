@@ -130,41 +130,7 @@ const AUDIO_REELS = [
   },
 ];
 
-// Comments data
-const COMMENTS_DATA = {
-  "1": [
-    {
-      id: "1",
-      user: "MusicLover",
-      text: "This beat is fire! 🔥",
-      time: "2h ago",
-      likes: 24,
-    },
-    {
-      id: "2",
-      user: "AudioFan",
-      text: "Perfect for late night coding sessions",
-      time: "4h ago",
-      likes: 12,
-    },
-  ],
-  "2": [
-    {
-      id: "1",
-      user: "ZenMaster",
-      text: "So peaceful and calming",
-      time: "1h ago",
-      likes: 45,
-    },
-    {
-      id: "2",
-      user: "MeditationGuru",
-      text: "Great for morning meditation",
-      time: "3h ago",
-      likes: 32,
-    },
-  ],
-};
+
 
 interface AudioReel {
   id: string;
@@ -578,9 +544,7 @@ export default function IndexScreen() {
     />
   );
 
-  const comments = selectedReel
-    ? COMMENTS_DATA[selectedReel.id as keyof typeof COMMENTS_DATA] || []
-    : [];
+
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -620,56 +584,6 @@ export default function IndexScreen() {
         bounces={false}
       />
 
-      {/* Comments Bottom Sheet */}
-      <BottomSheet
-        ref={commentsSheetRef}
-        index={-1}
-        snapPoints={["60%", "85%"]}
-        enablePanDownToClose
-        backdropComponent={BottomSheetBackdrop}
-        onChange={(index) => setCommentsSheetOpen(index >= 0)}
-      >
-        <BottomSheetView style={styles.sheetContent}>
-          <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Comments ({comments.length})</Text>
-            {/* <Pressable onPress={() => commentsSheetRef.current?.close()}>
-              <Ionicons name="close" size={24} color="#666" />
-            </Pressable> */}
-          </View>
-
-          {selectedReel && (
-            <View style={styles.currentTrack}>
-              <Image
-                source={{ uri: selectedReel.artistAvatar }}
-                style={styles.trackAvatar}
-              />
-              <View style={styles.trackInfo}>
-                <Text style={styles.trackTitle}>{selectedReel.title}</Text>
-                <Text style={styles.trackArtist}>{selectedReel.artist}</Text>
-              </View>
-            </View>
-          )}
-
-          <FlatList
-            data={comments}
-            renderItem={({ item }) => <CommentItem comment={item} />}
-            keyExtractor={(item) => item.id}
-            style={styles.commentsList}
-            showsVerticalScrollIndicator={false}
-          />
-
-          <View style={styles.commentInputContainer}>
-            <TextInput
-              style={styles.commentInput}
-              placeholder="Add a comment..."
-              placeholderTextColor="#999"
-            />
-            <Pressable style={styles.sendButton}>
-              <Ionicons name="send" size={20} color="#FF6B6B" />
-            </Pressable>
-          </View>
-        </BottomSheetView>
-      </BottomSheet>
 
       {/* More Options Bottom Sheet */}
       <BottomSheet
