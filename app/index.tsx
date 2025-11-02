@@ -225,7 +225,7 @@ const QuoteReelComponent: React.FC<AudioReelProps> = ({
           <View style={styles.topBar}></View>
 
           <View>
-            <Text>
+            <Text style={styles.qoute}>
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
               voluptas fuga at aut tempore fugiat. Odio at adipisci saepe
               distinctio libero pariatur sit? Suscipit a, odio consectetur rerum
@@ -458,6 +458,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     paddingHorizontal: 24,
+  },
+  qoute:{
+    textAlign:"center",
+    fontSize:24,
+    color:"#fff"
   },
   topBar: {
     flexDirection: "row",
