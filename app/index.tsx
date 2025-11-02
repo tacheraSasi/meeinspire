@@ -1,4 +1,4 @@
-import { QUOTES_REELS } from "@/lib/quotes";
+import { QuoteReel, QUOTES_REELS } from "@/lib/quotes";
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -24,12 +24,7 @@ const { width, height } = Dimensions.get("window");
 
 
 
-interface QuoteReel {
-  id: string;
-  content: string;
-  color: string;
-  gradient: string[];
-}
+
 
 
 interface QuoteReelProps {
@@ -53,8 +48,6 @@ const QuoteReelComponent: React.FC<QuoteReelProps> = ({
     onLike(reel.id);
   };
 
-
-
   return (
     <View style={styles.reelContainer}>
       <LinearGradient
@@ -70,10 +63,7 @@ const QuoteReelComponent: React.FC<QuoteReelProps> = ({
 
           <View>
             <Text style={styles.qoute}>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
-              voluptas fuga at aut tempore fugiat. Odio at adipisci saepe
-              distinctio libero pariatur sit? Suscipit a, odio consectetur rerum
-              soluta impedit.
+              {reel.content}
             </Text>
           </View>
 
