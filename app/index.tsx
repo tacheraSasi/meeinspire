@@ -1,3 +1,4 @@
+import { QUOTES_REELS } from "@/lib/quotes";
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -11,198 +12,41 @@ import {
   Animated,
   Dimensions,
   FlatList,
-  Image,
   Pressable,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("window");
 
-// Real music data with actual audio URLs
-const AUDIO_REELS = [
-  {
-    id: "1",
-    title: "Late Night Vibes",
-    artist: "Chill Beats",
-    duration: "2:45",
-    likes: "12.4K",
-    comments: "1.2K",
-    shares: "845",
-    plays: "124.5K",
-    audioUrl:
-      "https://bucket.ekilie.com/bucket/1761657041071838000_tachBeat11_26e814edfa2606829f9ac7d4b0a24687.mp3",
-    waveform: [
-      20, 45, 60, 85, 95, 120, 110, 85, 65, 40, 55, 70, 90, 110, 95, 75, 50, 65,
-      80, 100,
-    ],
-    color: "#FF6B6B",
-    gradient: ["#FF6B6B", "#FF8E8E", "#FF6B6B"],
-    artistAvatar:
-      "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=100&h=100&fit=crop",
-    type: "music",
-  },
-  {
-    id: "2",
-    title: "Deep Meditation",
-    artist: "Zen Sounds",
-    duration: "4:20",
-    likes: "8.7K",
-    comments: "543",
-    shares: "321",
-    plays: "89.2K",
-    audioUrl:
-      "https://bucket.ekilie.com/bucket/1761657041071838000_tachBeat11_26e814edfa2606829f9ac7d4b0a24687.mp3",
-    waveform: [
-      30, 50, 70, 90, 110, 130, 120, 100, 80, 60, 70, 90, 110, 130, 115, 95, 75,
-      85, 95, 105,
-    ],
-    color: "#4ECDC4",
-    gradient: ["#4ECDC4", "#6CE6DE", "#4ECDC4"],
-    artistAvatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
-    type: "podcast",
-  },
-  {
-    id: "3",
-    title: "Urban Flow",
-    artist: "City Beats",
-    duration: "3:15",
-    likes: "15.2K",
-    comments: "2.1K",
-    shares: "1.2K",
-    plays: "210.3K",
-    audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
-    waveform: [
-      25, 45, 65, 85, 105, 125, 115, 95, 75, 55, 65, 85, 105, 125, 110, 90, 70,
-      80, 100, 120,
-    ],
-    color: "#45B7D1",
-    gradient: ["#45B7D1", "#67D9F1", "#45B7D1"],
-    artistAvatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    type: "music",
-  },
-  {
-    id: "4",
-    title: "Ocean Waves",
-    artist: "Nature Sounds",
-    duration: "5:30",
-    likes: "23.7K",
-    comments: "3.4K",
-    shares: "2.1K",
-    plays: "345.8K",
-    audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
-    waveform: [
-      15, 35, 55, 75, 95, 115, 105, 85, 65, 45, 55, 75, 95, 115, 100, 80, 60,
-      70, 90, 110,
-    ],
-    color: "#96CEB4",
-    gradient: ["#96CEB4", "#B8EED4", "#96CEB4"],
-    artistAvatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-    type: "audiobook",
-  },
-  {
-    id: "5",
-    title: "Cosmic Journey",
-    artist: "Space Audio",
-    duration: "6:45",
-    likes: "18.9K",
-    comments: "2.8K",
-    shares: "1.7K",
-    plays: "278.4K",
-    audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
-    waveform: [
-      40, 60, 80, 100, 120, 140, 130, 110, 90, 70, 80, 100, 120, 140, 125, 105,
-      85, 95, 115, 135,
-    ],
-    color: "#6C5CE7",
-    gradient: ["#6C5CE7", "#8E7DF7", "#6C5CE7"],
-    artistAvatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
-    type: "voicenote",
-  },
-];
 
 
-
-interface AudioReel {
+interface QuoteReel {
   id: string;
-  title: string;
-  artist: string;
-  duration: string;
-  likes: string;
-  comments: string;
-  shares: string;
-  plays: string;
-  audioUrl: string;
-  waveform: number[];
+  content: string;
   color: string;
   gradient: string[];
-  artistAvatar: string;
-  type: string;
 }
 
 
-interface WaveformProps {
-  data: number[];
-  color: string;
-  isPlaying: boolean;
-  progress: number;
-}
-
-
-interface AudioReelProps {
-  reel: AudioReel;
+interface QuoteReelProps {
+  reel: QuoteReel;
   isActive: boolean;
   onLike: (id: string) => void;
   onComment: (id: string) => void;
   onShare: (id: string) => void;
-  onMore: (reel: AudioReel) => void;
+  onMore: (reel: QuoteReel) => void;
 }
 
-const QuoteReelComponent: React.FC<AudioReelProps> = ({
+const QuoteReelComponent: React.FC<QuoteReelProps> = ({
   reel,
   onLike,
-  onShare,
   onMore,
 }) => {
-  const [progress, setProgress] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const progressAnim = useRef(new Animated.Value(0)).current;
-
-  const loadAudio = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: reel.audioUrl },
-        { shouldPlay: false }
-      );
-      setSound(sound);
-    } catch (error) {
-      console.error("Error loading audio:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadAudio();
-    return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
-    };
-  }, []);
-
-
-  progressAnim.addListener(({ value }) => {
-    setProgress(value);
-  });
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -268,7 +112,7 @@ export default function IndexScreen() {
   const [likedReels, setLikedReels] = useState<Set<string>>(new Set());
   const [commentsSheetOpen, setCommentsSheetOpen] = useState(false);
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
-  const [selectedReel, setSelectedReel] = useState<AudioReel | null>(null);
+  const [selectedReel, setSelectedReel] = useState<QuoteReel | null>(null);
   const router = useRouter();
   const commentsSheetRef = useRef<BottomSheet>(null);
   const moreSheetRef = useRef<BottomSheet>(null);
@@ -296,7 +140,7 @@ export default function IndexScreen() {
   };
 
   const handleComment = (reelId: string) => {
-    const reel = AUDIO_REELS.find((r) => r.id === reelId);
+    const reel = QUOTES_REELS.find((r) => r.id === reelId);
     setSelectedReel(reel || null);
     setCommentsSheetOpen(true);
     commentsSheetRef.current?.expand();
@@ -306,13 +150,13 @@ export default function IndexScreen() {
     console.log("Share reel:", reelId);
   };
 
-  const handleMore = (reel: AudioReel) => {
+  const handleMore = (reel: QuoteReel) => {
     setSelectedReel(reel);
     setMoreSheetOpen(true);
     moreSheetRef.current?.expand();
   };
 
-  const renderReel = ({ item, index }: { item: AudioReel; index: number }) => (
+  const renderReel = ({ item, index }: { item: QuoteReel; index: number }) => (
     <QuoteReelComponent
       reel={item}
       isActive={index === currentIndex}
@@ -350,7 +194,7 @@ export default function IndexScreen() {
 
       {/* Reels List */}
       <FlatList
-        data={AUDIO_REELS}
+        data={QUOTES_REELS}
         renderItem={renderReel}
         keyExtractor={(item) => item.id}
         pagingEnabled
