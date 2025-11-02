@@ -370,36 +370,6 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
             </View>
           </View>
 
-          {/* Center Waveform and Play Button */}
-          <View style={styles.centerSection}>
-            <Waveform
-              data={reel.waveform}
-              color={reel.color}
-              isPlaying={isPlaying && isActive}
-              progress={progress}
-            />
-
-            <TouchableOpacity
-              style={[
-                styles.playButton,
-                {
-                  backgroundColor: reel.color,
-                  shadowColor: reel.color,
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 16,
-                  elevation: 8,
-                },
-              ]}
-              onPress={handlePlayPause}
-            >
-              <Ionicons
-                name={isPlaying && isActive ? "pause" : "play"}
-                size={32}
-                color="white"
-              />
-            </TouchableOpacity>
-          </View>
 
           {/* Bottom Controls */}
           <View style={styles.bottomSection}>
@@ -421,13 +391,6 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
                 <Text style={styles.actionCount}>{reel.likes}</Text>
               </Pressable>
 
-              <Pressable
-                style={styles.actionButton}
-                onPress={() => onComment(reel.id)}
-              >
-                <Ionicons name="chatbubble-outline" size={26} color="white" />
-                <Text style={styles.actionCount}>{reel.comments}</Text>
-              </Pressable>
 
               <Pressable
                 style={styles.actionButton}
@@ -447,21 +410,6 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
           </View>
         </View>
 
-        {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
-          <Animated.View
-            style={[
-              styles.progressBar,
-              {
-                width: progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0%", "100%"],
-                }),
-                backgroundColor: reel.color,
-              },
-            ]}
-          />
-        </View>
       </LinearGradient>
     </View>
   );
