@@ -1,0 +1,103 @@
+import { router } from "expo-router";
+
+import axios from "axios";
+
+import { BASE_URL } from "@/constants/constants";
+import { isJwtExpired } from "@/lib/utils";
+
+import { authToken, setAuthToken } from "./authToken";
+
+const api = (authenticate: any) => {
+  const config = axios.create({ baseURL: BASE_URL });
+  config.defaults.headers.post["Content-Type"] = "application/json";
+
+  if (authenticate) {
+    // Request interceptor to add auth token
+    config.interceptors.request.use(
+      async (c) => {
+        const token = await authToken("access");
+        if (token) {
+          // Check if token is expired
+          if (isJwtExpired(token)) {
+            // Try to refresh token
+            const refreshed = await refreshAuthToken();
+            if (refreshed) {
+              c.headers.Authorization = "Bearer " + refreshed;
+            } else {
+              // Redirect to login if refresh fails
+              router.replace("/login");
+              return Promise.reject(
+                new Error("Token expired and refresh failed")
+              );
+            }
+          } else {
+            c.headers.Authorization = "Bearer " + token;
+          }
+        }
+        return c;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor to handle token refresh
+    config.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          const refreshed = await refreshAuthToken();
+          if (refreshed) {
+            originalRequest.headers.Authorization = "Bearer " + refreshed;
+            return config(originalRequest);
+          } else {
+            router.replace("/login");
+            return Promise.reject(error);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  return config;
+};
+
+async function refreshAuthToken(): Promise<string | null> {
+  try {
+    const refreshToken = await authToken("refresh");
+    if (!refreshToken || isJwtExpired(refreshToken)) {
+      return null;
+    }
+
+    // Use the refresh token in Authorization header as per API spec
+    const response = await axios.post(
+      `${BASE_URL}/auth/refresh`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const { token, refresh_token } = response.data;
+    await setAuthToken({
+      access: token,
+      refresh: refresh_token,
+    });
+
+    return token;
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    return null;
+  }
+}
+
+export default api;
