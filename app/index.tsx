@@ -370,34 +370,23 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
             </View>
           </View>
 
-
           {/* Bottom Controls */}
           <View style={styles.bottomSection}>
-            <View style={styles.songInfo}>
-              <Text style={styles.duration}>{reel.duration}</Text>
-              <Text style={styles.nowPlaying}>
-                {isPlaying && isActive ? "NOW PLAYING" : "TAP TO PLAY"}
-              </Text>
-            </View>
+            <Pressable style={styles.actionButton} onPress={handleLike}>
+              <Ionicons
+                name={isLiked ? "heart" : "heart-outline"}
+                size={28}
+                color={isLiked ? "#FF4757" : "white"}
+              />
+            </Pressable>
 
             {/* Right Action Buttons */}
             <View style={styles.actionButtons}>
-              <Pressable style={styles.actionButton} onPress={handleLike}>
-                <Ionicons
-                  name={isLiked ? "heart" : "heart-outline"}
-                  size={28}
-                  color={isLiked ? "#FF4757" : "white"}
-                />
-                <Text style={styles.actionCount}>{reel.likes}</Text>
-              </Pressable>
-
-
               <Pressable
                 style={styles.actionButton}
                 onPress={() => onShare(reel.id)}
               >
                 <Ionicons name="paper-plane-outline" size={26} color="white" />
-                <Text style={styles.actionCount}>{reel.shares}</Text>
               </Pressable>
 
               <Pressable
@@ -409,28 +398,10 @@ const AudioReelComponent: React.FC<AudioReelProps> = ({
             </View>
           </View>
         </View>
-
       </LinearGradient>
     </View>
   );
 };
-
-// Comment Component
-const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => (
-  <View style={styles.commentItem}>
-    <View style={styles.commentHeader}>
-      <Text style={styles.commentUser}>{comment.user}</Text>
-      <Text style={styles.commentTime}>{comment.time}</Text>
-    </View>
-    <Text style={styles.commentText}>{comment.text}</Text>
-    <View style={styles.commentFooter}>
-      <Pressable style={styles.commentLike}>
-        <Ionicons name="heart-outline" size={16} color="#666" />
-        <Text style={styles.commentLikeCount}>{comment.likes}</Text>
-      </Pressable>
-    </View>
-  </View>
-);
 
 export default function IndexScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -504,12 +475,12 @@ export default function IndexScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Discover</Text>
+        <Text style={styles.headerTitle}>Meeinspire</Text>
         <View style={styles.headerActions}>
           <Pressable
             style={styles.headerButton}
             onPress={() => {
-              router.push("/(core)/posts/create");
+              router.push("/settings");
             }}
           >
             <Ionicons name="add-circle" size={24} color="white" />
