@@ -1,9 +1,10 @@
 import ScreenLayout from "@/components/ScreenLayout";
-import { SkeletonItem } from "@/components/SkeletonLoader";
+import { SectionHeader } from "@/components/settings/sectionHeader";
+import { SettingItem } from "@/components/settings/settingsItem";
 import { useCurrentTheme } from "@/context/CentralTheme";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import React from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, ScrollView, StyleSheet } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -13,147 +14,44 @@ const SettingsScreen: React.FC = () => {
   return (
     <ScreenLayout>
       <ScrollView style={[styles.container]}>
-        {/* Header Section */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <Ionicons
-              name="musical-notes-outline"
-              size={32}
-              color={theme.primary}
-              style={styles.headerIcon}
+        <SectionHeader title="About" />
+
+        <SettingItem
+          icon="info"
+          title="App Version"
+          subtitle="1.0.0 (Build 1)"
+          onPress={() => {}}
+        />
+
+        <SettingItem
+          icon="help"
+          title="Help & Support"
+          subtitle="Get help with the app"
+          onPress={() => {}}
+          rightElement={
+            <Entypo
+              name="chevron-right"
+              size={20}
+              color="#11181C"
+              opacity={0.5}
             />
-            <Text style={[styles.title, { color: theme.text }]}>
-              Copyright-Free Mixes
-            </Text>
-            <Text style={[styles.subtitle, { color: theme.subtleText }]}>
-              Loading curated playlists...
-            </Text>
-          </View>
-        </View>
+          }
+        />
 
-        {/* Featured Mix Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Today's Featured Mix
-          </Text>
-          <View
-            style={[
-              styles.featuredMix,
-              { backgroundColor: theme.card, borderColor: theme.border },
-            ]}
-          >
-            <SkeletonItem
-              width="100%"
-              height={200}
-              borderRadius={12}
-              style={{ marginBottom: 16 }}
+        <SettingItem
+          icon="privacy-tip"
+          title="Privacy Policy"
+          subtitle="Learn about your privacy"
+          onPress={() => {}}
+          rightElement={
+            <Entypo
+              name="chevron-right"
+              size={20}
+              color="#11181C"
+              opacity={0.5}
             />
-            <SkeletonItem width="75%" height={24} style={{ marginBottom: 8 }} />
-            <SkeletonItem
-              width="55%"
-              height={16}
-              style={{ marginBottom: 16 }}
-            />
-            <View style={styles.mixMetadata}>
-              <SkeletonItem width={80} height={14} />
-              <SkeletonItem width={100} height={14} />
-            </View>
-          </View>
-        </View>
-
-        {/* Categories Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Browse by Mood
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.moodCard,
-                  { backgroundColor: theme.card, borderColor: theme.border },
-                ]}
-              >
-                <SkeletonItem
-                  width={120}
-                  height={80}
-                  borderRadius={8}
-                  style={{ marginBottom: 8 }}
-                />
-                <SkeletonItem width="80%" height={16} />
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Popular Mixes Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Popular This Week
-          </Text>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.mixItem,
-                { backgroundColor: theme.card, borderColor: theme.border },
-              ]}
-            >
-              <SkeletonItem
-                width={80}
-                height={80}
-                borderRadius={8}
-                style={{ marginRight: 16 }}
-              />
-              <View style={styles.mixContent}>
-                <SkeletonItem
-                  width="85%"
-                  height={18}
-                  style={{ marginBottom: 6 }}
-                />
-                <SkeletonItem
-                  width="65%"
-                  height={14}
-                  style={{ marginBottom: 8 }}
-                />
-                <View style={styles.mixInfo}>
-                  <SkeletonItem width={60} height={12} />
-                  <SkeletonItem width={80} height={12} />
-                </View>
-              </View>
-              <View style={styles.playButton}>
-                <SkeletonItem width={40} height={40} borderRadius={20} />
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Genres Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Explore Genres
-          </Text>
-          <View style={styles.genresGrid}>
-            {Array.from({ length: 8 }).map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.genreCard,
-                  { backgroundColor: theme.card, borderColor: theme.border },
-                ]}
-              >
-                <SkeletonItem
-                  width="100%"
-                  height={60}
-                  borderRadius={8}
-                  style={{ marginBottom: 8 }}
-                />
-                <SkeletonItem width="70%" height={14} />
-              </View>
-            ))}
-          </View>
-        </View>
+          }
+        />
       </ScrollView>
     </ScreenLayout>
   );
