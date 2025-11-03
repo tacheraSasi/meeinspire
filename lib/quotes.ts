@@ -2,6 +2,7 @@ export interface QuoteReel {
   id: string;
   content: string;
   gradient: string[]; // [light,dark,lighter]
+  //TODO: Add diff fonts for every reel
 }
 
 export const QUOTES_REELS = [
