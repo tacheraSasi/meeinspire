@@ -1,4 +1,4 @@
-import { QuoteReel, QUOTES_REELS } from "@/lib/quotes";
+import { QuoteReel, QUOTES_REELS, SHUFFLED_QUOTES } from "@/lib/quotes";
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -177,7 +177,7 @@ export default function IndexScreen() {
 
       {/* Reels List */}
       <FlatList
-        data={QUOTES_REELS}
+        data={SHUFFLED_QUOTES}
         renderItem={renderReel}
         keyExtractor={(item) => item.id}
         pagingEnabled
