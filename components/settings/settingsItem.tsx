@@ -1,7 +1,5 @@
-import { ThemedText } from "@/components/Themed";
-import Colors from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export const SettingItem = ({
   icon,
@@ -22,9 +20,9 @@ export const SettingItem = ({
         <MaterialIcons name={icon as any} size={24} color="#965997ff" />
       </View>
       <View style={styles.settingContent}>
-        <ThemedText style={styles.settingTitle}>{title}</ThemedText>
+        <Text style={styles.settingTitle}>{title}</Text>
         {subtitle && (
-          <ThemedText style={styles.settingSubtitle}>{subtitle}</ThemedText>
+          <Text style={styles.settingSubtitle}>{subtitle}</Text>
         )}
       </View>
     </View>
