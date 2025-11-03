@@ -20,11 +20,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("window");
 
-
-
-
-
-
 interface QuoteReelProps {
   reel: QuoteReel;
   isActive: boolean;
