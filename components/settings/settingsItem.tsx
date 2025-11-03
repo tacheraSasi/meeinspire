@@ -17,7 +17,7 @@ export const SettingItem = ({
   <Pressable style={styles.settingItem} onPress={onPress}>
     <View style={styles.settingLeft}>
       <View style={styles.iconContainer}>
-        <MaterialIcons name={icon as any} size={24} color="#965997ff" />
+        <MaterialIcons name={icon as any} size={24} color="#433a3aff" />
       </View>
       <View style={styles.settingContent}>
         <Text style={styles.settingTitle}>{title}</Text>
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#965997ff" + "15",
+    backgroundColor: "#433a3aff" + "15",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,

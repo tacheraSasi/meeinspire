@@ -60,6 +60,7 @@ const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal:20,
   },
   header: {
     padding: 20,

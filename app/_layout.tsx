@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 
 import { ThemeStatusBar } from "../context/CentralTheme";
-import { SessionProvider, useSession } from "../context/ctx";
+import { SessionProvider } from "../context/ctx";
 import { ThemeProvider } from "../context/ThemeProvider";
 import { ToastProvider } from "../context/ToastProvider";
 import { SplashScreenController } from "../components/splash";
