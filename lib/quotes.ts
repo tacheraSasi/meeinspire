@@ -585,6 +585,10 @@ const getRandomQuotes = (count: number = 10) => {
   return shuffled.slice(0, count);
 };
 
+export const getQuoteById = (id:string):QuoteReel | undefined =>{
+  return QUOTES_REELS.find(quote => quote.id == id)
+}
+
 // Get 10 random quotes
 const randomQuotes = getRandomQuotes();
 
