@@ -7,7 +7,6 @@ const triggerHaptic = async (hapticFunction: () => Promise<void>) => {
   try {
     await hapticFunction();
   } catch (error) {
-    // Silently fail if haptics are not supported or permission denied
     console.debug("Haptic feedback not available:", error);
   }
 };
