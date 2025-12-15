@@ -7,11 +7,13 @@ import React, { useState } from "react";
 import { Alert, Dimensions, ScrollView, StyleSheet } from "react-native";
 import { clearQuotesCache } from "@/lib/quotesApi";
 import { clearFavorites } from "@/lib/favoritesStorage";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const SettingsScreen: React.FC = () => {
   const theme = useCurrentTheme();
+  const router = useRouter();
   const [clearing, setClearing] = useState(false);
 
   const handleClearCache = async () => {
@@ -70,6 +72,23 @@ const SettingsScreen: React.FC = () => {
   return (
     <ScreenLayout>
       <ScrollView style={[styles.container]}>
+        <SectionHeader title="App" />
+
+        <SettingItem
+          icon="bar-chart"
+          title="Statistics"
+          subtitle="View your usage statistics"
+          onPress={() => router.push("/stats")}
+          rightElement={
+            <Entypo
+              name="chevron-right"
+              size={20}
+              color="#11181C"
+              opacity={0.5}
+            />
+          }
+        />
+
         <SectionHeader title="Data Management" />
 
         <SettingItem

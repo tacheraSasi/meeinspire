@@ -13,6 +13,7 @@ import {
   FlatList,
   Pressable,
   RefreshControl,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -181,8 +182,17 @@ export default function IndexScreen() {
     commentsSheetRef.current?.expand();
   };
 
-  const handleShare = (reelId: string) => {
-    console.log("Share reel:", reelId);
+  const handleShare = async (reelId: string) => {
+    try {
+      const reel = quotes.find((r) => r.id === reelId);
+      if (reel) {
+        await Share.share({
+          message: `"${reel.content}"\n\nShared from Meeinspire`,
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing quote:', error);
+    }
   };
 
   const handleMore = (reel: QuoteReel) => {
@@ -301,24 +311,41 @@ export default function IndexScreen() {
           </View>
 
           <View style={styles.moreOptions}>
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="download-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Download Audio</Text>
-            </Pressable>
-
-            <Pressable style={styles.optionItem}>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={async () => {
+                if (selectedReel) {
+                  await handleShare(selectedReel.id);
+                  moreSheetRef.current?.close();
+                }
+              }}
+            >
               <Ionicons name="share-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Share</Text>
+              <Text style={styles.optionText}>Share Quote</Text>
             </Pressable>
 
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="flag-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Report</Text>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={async () => {
+                if (selectedReel) {
+                  const newStatus = await toggleFavoriteQuote(selectedReel);
+                  moreSheetRef.current?.close();
+                }
+              }}
+            >
+              <Ionicons name="heart-outline" size={24} color="#333" />
+              <Text style={styles.optionText}>Add to Favorites</Text>
             </Pressable>
 
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="notifications-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Turn on Notifications</Text>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={() => {
+                onRefresh();
+                moreSheetRef.current?.close();
+              }}
+            >
+              <Ionicons name="refresh-outline" size={24} color="#333" />
+              <Text style={styles.optionText}>Refresh Quotes</Text>
             </Pressable>
           </View>
         </BottomSheetView>
