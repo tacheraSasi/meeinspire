@@ -34,28 +34,38 @@ const convertToQuoteReel = (quote: QuotableQuote): QuoteReel => {
   };
 };
 
-// Fetch random quotes from API
+// Fetch random quotes from API with throttling to avoid rate limiting
 export const fetchRandomQuotes = async (count: number = 30): Promise<QuoteReel[]> => {
   try {
     const quotes: QuoteReel[] = [];
     
-    // Fetch multiple quotes (quotable API returns one at a time for /random endpoint)
-    // We'll fetch them in parallel
-    const promises = Array(count).fill(null).map(() => 
-      axios.get<QuotableQuote>(`${QUOTABLE_API_BASE}/random`, {
-        params: {
-          maxLength: 150, // Keep quotes reasonably short
-        }
-      })
-    );
-
-    const responses = await Promise.all(promises);
+    // Fetch quotes in smaller batches with delays to avoid overwhelming the API
+    const batchSize = 5;
+    const delayMs = 200; // 200ms delay between batches
     
-    responses.forEach(response => {
-      if (response.data) {
-        quotes.push(convertToQuoteReel(response.data));
+    for (let i = 0; i < count; i += batchSize) {
+      const batch = Math.min(batchSize, count - i);
+      const promises = Array(batch).fill(null).map(() => 
+        axios.get<QuotableQuote>(`${QUOTABLE_API_BASE}/random`, {
+          params: {
+            maxLength: 150, // Keep quotes reasonably short
+          }
+        })
+      );
+
+      const responses = await Promise.all(promises);
+      
+      responses.forEach(response => {
+        if (response.data) {
+          quotes.push(convertToQuoteReel(response.data));
+        }
+      });
+
+      // Add delay between batches (except for the last batch)
+      if (i + batchSize < count) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
-    });
+    }
 
     return quotes;
   } catch (error) {
@@ -150,7 +160,7 @@ export const getQuotes = async (forceRefresh: boolean = false): Promise<QuoteRee
       return cachedQuotes;
     }
     
-    // If no cache available, throw error
-    throw new Error('Failed to fetch quotes and no cache available');
+    // If no cache available, throw error with helpful message
+    throw new Error('Unable to load quotes. Please check your internet connection and try again.');
   }
 };

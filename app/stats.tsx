@@ -2,6 +2,7 @@ import ScreenLayout from "@/components/ScreenLayout";
 import { SectionHeader } from "@/components/settings/sectionHeader";
 import { getFavoriteQuotes } from "@/lib/favoritesStorage";
 import { getCachedQuotes, isCacheExpired } from "@/lib/quotesApi";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -36,12 +37,20 @@ const StatsScreen: React.FC = () => {
       const favorites = await getFavoriteQuotes();
       const cached = await getCachedQuotes();
       const expired = await isCacheExpired();
+      
+      // Get actual cache timestamp
+      const timestampStr = await AsyncStorage.getItem('quotes_cache_timestamp');
+      let lastUpdatedDate = 'Never';
+      if (timestampStr) {
+        const timestamp = parseInt(timestampStr, 10);
+        lastUpdatedDate = new Date(timestamp).toLocaleString();
+      }
 
       setStats({
         totalFavorites: favorites.length,
         cachedQuotes: cached?.length || 0,
         cacheStatus: expired ? "Expired - Will refresh" : "Active",
-        lastUpdated: new Date().toLocaleDateString(),
+        lastUpdated: lastUpdatedDate,
       });
     } catch (error) {
       console.error("Error loading stats:", error);

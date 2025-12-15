@@ -139,9 +139,20 @@ export default function IndexScreen() {
       setQuotes(fetchedQuotes);
     } catch (err) {
       console.error('Error loading quotes:', err);
-      setError('Failed to load quotes. Using offline data.');
-      // Fallback to hardcoded quotes if API fails
-      setQuotes(SHUFFLED_QUOTES);
+      setError('Unable to connect. Check your internet connection.');
+      
+      // Try to use cached quotes first as fallback
+      const { getCachedQuotes } = await import('@/lib/quotesApi');
+      const cachedQuotes = await getCachedQuotes();
+      
+      if (cachedQuotes && cachedQuotes.length > 0) {
+        setQuotes(cachedQuotes);
+        setError('Using cached quotes. Pull to refresh when online.');
+      } else {
+        // Only use hardcoded quotes as last resort
+        setQuotes(SHUFFLED_QUOTES);
+        setError('Using sample quotes. Connect to internet for more.');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
