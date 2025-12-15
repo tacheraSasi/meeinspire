@@ -3,17 +3,105 @@ import { SectionHeader } from "@/components/settings/sectionHeader";
 import { SettingItem } from "@/components/settings/settingsItem";
 import { useCurrentTheme } from "@/context/CentralTheme";
 import { Entypo } from "@expo/vector-icons";
-import React from "react";
-import { Dimensions, ScrollView, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { Alert, Dimensions, ScrollView, StyleSheet } from "react-native";
+import { clearQuotesCache } from "@/lib/quotesApi";
+import { clearFavorites } from "@/lib/favoritesStorage";
 
 const { width } = Dimensions.get("window");
 
 const SettingsScreen: React.FC = () => {
   const theme = useCurrentTheme();
+  const [clearing, setClearing] = useState(false);
+
+  const handleClearCache = async () => {
+    Alert.alert(
+      "Clear Cache",
+      "This will clear all cached quotes and you'll need to download them again. Continue?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setClearing(true);
+              await clearQuotesCache();
+              Alert.alert("Success", "Cache cleared successfully");
+            } catch (error) {
+              Alert.alert("Error", "Failed to clear cache");
+            } finally {
+              setClearing(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleClearFavorites = async () => {
+    Alert.alert(
+      "Clear Favorites",
+      "This will remove all your favorite quotes. This action cannot be undone. Continue?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await clearFavorites();
+              Alert.alert("Success", "Favorites cleared successfully");
+            } catch (error) {
+              Alert.alert("Error", "Failed to clear favorites");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <ScreenLayout>
       <ScrollView style={[styles.container]}>
+        <SectionHeader title="Data Management" />
+
+        <SettingItem
+          icon="cached"
+          title="Clear Cache"
+          subtitle="Remove cached quotes to free up space"
+          onPress={handleClearCache}
+          rightElement={
+            <Entypo
+              name="chevron-right"
+              size={20}
+              color="#11181C"
+              opacity={0.5}
+            />
+          }
+        />
+
+        <SettingItem
+          icon="favorite-border"
+          title="Clear Favorites"
+          subtitle="Remove all favorite quotes"
+          onPress={handleClearFavorites}
+          rightElement={
+            <Entypo
+              name="chevron-right"
+              size={20}
+              color="#11181C"
+              opacity={0.5}
+            />
+          }
+        />
+
         <SectionHeader title="About" />
 
         <SettingItem
