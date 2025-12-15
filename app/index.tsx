@@ -6,17 +6,22 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Pressable,
+  RefreshControl,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { getQuotes } from "@/lib/quotesApi";
+import { toggleFavoriteQuote, isQuoteFavorited } from "@/lib/favoritesStorage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,9 +41,23 @@ const QuoteReelComponent: React.FC<QuoteReelProps> = ({
 }) => {
   const [isLiked, setIsLiked] = useState(false);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    onLike(reel.id);
+  // Check favorite status on mount
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const favorited = await isQuoteFavorited(reel.id);
+      setIsLiked(favorited);
+    };
+    checkFavorite();
+  }, [reel.id]);
+
+  const handleLike = async () => {
+    try {
+      const newStatus = await toggleFavoriteQuote(reel);
+      setIsLiked(newStatus);
+      onLike(reel.id);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   return (
@@ -96,9 +115,54 @@ export default function IndexScreen() {
   const [commentsSheetOpen, setCommentsSheetOpen] = useState(false);
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [selectedReel, setSelectedReel] = useState<QuoteReel | null>(null);
+  const [quotes, setQuotes] = useState<QuoteReel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const commentsSheetRef = useRef<BottomSheet>(null);
   const moreSheetRef = useRef<BottomSheet>(null);
+
+  // Load quotes on mount
+  useEffect(() => {
+    loadQuotes();
+  }, []);
+
+  const loadQuotes = async (forceRefresh: boolean = false) => {
+    try {
+      if (!forceRefresh) {
+        setLoading(true);
+      }
+      setError(null);
+      
+      const fetchedQuotes = await getQuotes(forceRefresh);
+      setQuotes(fetchedQuotes);
+    } catch (err) {
+      console.error('Error loading quotes:', err);
+      setError('Unable to connect. Check your internet connection.');
+      
+      // Try to use cached quotes first as fallback
+      const { getCachedQuotes } = await import('@/lib/quotesApi');
+      const cachedQuotes = await getCachedQuotes();
+      
+      if (cachedQuotes && cachedQuotes.length > 0) {
+        setQuotes(cachedQuotes);
+        setError('Using cached quotes. Pull to refresh when online.');
+      } else {
+        // Only use hardcoded quotes as last resort
+        setQuotes(SHUFFLED_QUOTES);
+        setError('Using sample quotes. Connect to internet for more.');
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadQuotes(true);
+  }, []);
 
   const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
@@ -123,14 +187,23 @@ export default function IndexScreen() {
   };
 
   const handleComment = (reelId: string) => {
-    const reel = QUOTES_REELS.find((r) => r.id === reelId);
+    const reel = quotes.find((r) => r.id === reelId);
     setSelectedReel(reel || null);
     setCommentsSheetOpen(true);
     commentsSheetRef.current?.expand();
   };
 
-  const handleShare = (reelId: string) => {
-    console.log("Share reel:", reelId);
+  const handleShare = async (reelId: string) => {
+    try {
+      const reel = quotes.find((r) => r.id === reelId);
+      if (reel) {
+        await Share.share({
+          message: `"${reel.content}"\n\nShared from Meeinspire`,
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing quote:', error);
+    }
   };
 
   const handleMore = (reel: QuoteReel) => {
@@ -152,6 +225,23 @@ export default function IndexScreen() {
 
 
 
+  // Show loading screen while initial load
+  if (loading && quotes.length === 0) {
+    return (
+      <GestureHandlerRootView style={styles.container}>
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor="transparent"
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={styles.loadingText}>Loading inspiring quotes...</Text>
+        </View>
+      </GestureHandlerRootView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <StatusBar
@@ -167,17 +257,33 @@ export default function IndexScreen() {
           <Pressable
             style={styles.headerButton}
             onPress={() => {
+              router.push("/favorites");
+            }}
+          >
+            <Ionicons name="heart" size={26} color="#433a3aff" />
+          </Pressable>
+          <Pressable
+            style={styles.headerButton}
+            onPress={() => {
               router.push("/settings");
             }}
           >
-            <Ionicons name="flower" size={30} color="#433a3aff" />
+            <Ionicons name="settings" size={26} color="#433a3aff" />
           </Pressable>
         </View>
       </View>
 
+      {/* Error Banner */}
+      {error && (
+        <View style={styles.errorBanner}>
+          <Ionicons name="warning" size={16} color="#ffffff" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
       {/* Reels List */}
       <FlatList
-        data={SHUFFLED_QUOTES}
+        data={quotes}
         renderItem={renderReel}
         keyExtractor={(item) => item.id}
         pagingEnabled
@@ -188,6 +294,14 @@ export default function IndexScreen() {
         snapToAlignment="start"
         decelerationRate="fast"
         bounces={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#ffffff"
+            colors={["#ffffff"]}
+          />
+        }
       />
 
       {/* More Options Bottom Sheet */}
@@ -208,24 +322,41 @@ export default function IndexScreen() {
           </View>
 
           <View style={styles.moreOptions}>
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="download-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Download Audio</Text>
-            </Pressable>
-
-            <Pressable style={styles.optionItem}>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={async () => {
+                if (selectedReel) {
+                  await handleShare(selectedReel.id);
+                  moreSheetRef.current?.close();
+                }
+              }}
+            >
               <Ionicons name="share-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Share</Text>
+              <Text style={styles.optionText}>Share Quote</Text>
             </Pressable>
 
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="flag-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Report</Text>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={async () => {
+                if (selectedReel) {
+                  const newStatus = await toggleFavoriteQuote(selectedReel);
+                  moreSheetRef.current?.close();
+                }
+              }}
+            >
+              <Ionicons name="heart-outline" size={24} color="#333" />
+              <Text style={styles.optionText}>Add to Favorites</Text>
             </Pressable>
 
-            <Pressable style={styles.optionItem}>
-              <Ionicons name="notifications-outline" size={24} color="#333" />
-              <Text style={styles.optionText}>Turn on Notifications</Text>
+            <Pressable 
+              style={styles.optionItem}
+              onPress={() => {
+                onRefresh();
+                moreSheetRef.current?.close();
+              }}
+            >
+              <Ionicons name="refresh-outline" size={24} color="#333" />
+              <Text style={styles.optionText}>Refresh Quotes</Text>
             </Pressable>
           </View>
         </BottomSheetView>
@@ -548,5 +679,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  loadingText: {
+    color: "#fff",
+    fontSize: 16,
+    marginTop: 16,
+  },
+  errorBanner: {
+    position: "absolute",
+    top: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: "rgba(255, 59, 48, 0.9)",
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    zIndex: 999,
+  },
+  errorText: {
+    color: "#fff",
+    fontSize: 14,
+    flex: 1,
   },
 });
